@@ -1,10 +1,31 @@
 {
   "scripts": {
-    "start": "snowpack dev",
-    "build": "snowpack build",
+    "build": "webpack build",
+    "watch": "webpack  build --watch",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
-    "snowpack": "^3.0.1"
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
+    "autoprefixer": "^10.2.4",
+    "css-loader": "^5.1.0",
+    "postcss": "^8.2.6",
+    "postcss-loader": "^5.0.0",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.1.5",
+    "webpack": "^5.24.2",
+    "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "@medv/finder": "^2.0.0",
+    "ace-builds": "^1.4.12",
+    "bigtest": "^0.13.1",
+    "effector": "^21.8.4",
+    "effector-react": "^21.2.1",
+    "react": "^17.0.1",
+    "react-ace": "^9.3.0",
+    "react-dom": "^17.0.1",
+    "tailwindcss": "^2.0.3"
   }
 }

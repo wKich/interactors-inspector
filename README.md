@@ -1,24 +1,22 @@
-# New Project
+# Interactors Inspector PoC
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+## How to start
 
-## Available Scripts
+Required `npm@7`
 
-### npm start
+- `npm i`
+- `npm run build`
+- Inject bundle from `./build/main.js` to your app
+- In a browser with your app press `Ctrl + Alt + I` to show the inspector view
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+## How to use
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+- Hit `Refresh` button to match built-in interactors to all dom elements. When you move mouse on matched interactor the bound dom element highlights. You can inspect element props and do some actions.
+- On the right side you can write custom interactors by using `createInteractor` API or use built-in interactors to write action sequence
 
-### npm run build
+## What doesn't work yet
 
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
-
-**For the best production performance:** Add a build bundler plugin like [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) or [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle) to your `snowpack.config.json` config file.
-
-### Q: What about Eject?
-
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+- `fillIn` action, you can't use this action from the left side panel
+- Autocomplete for actions editor
+- Interactor actions execute synchronously, that blocks UI updates
+- The filter by `selector` works very inefficiency
