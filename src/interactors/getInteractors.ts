@@ -13,6 +13,8 @@ import { finder } from "@medv/finder";
 import { entries } from "../helpers";
 import { root } from "../root";
 
+const excludedContainers = [() => root, () => document.querySelector("body > .ace_editor")] as (() => Element | null)[];
+
 const additionalFilters = { selector: (element: Element) => finder(element) };
 
 export const Button = BaseButton.extend("Button").filters(additionalFilters);
@@ -32,7 +34,9 @@ function resolveInteractor<T extends InteractorConstructor<any, any, any>>(const
   const { locator, selector, filters, actions } = specification;
   const elements: HTMLElement[] = ((selector
     ? Array.from(document.querySelectorAll(selector))
-    : []) as HTMLElement[]).filter((element) => !root.contains(element));
+    : []) as HTMLElement[]).filter((element) =>
+    excludedContainers.every((container) => !container()?.contains(element))
+  );
 
   return {
     constructor,
