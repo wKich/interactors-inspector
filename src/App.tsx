@@ -51,9 +51,13 @@ export function App() {
       if (event.code == "KeyI") capturing.current = true;
     };
 
+    // @ts-expect-error
+    window.__BIGTEST_SHOW_INSPECTOR__ = toggle;
     window.addEventListener("keydown", keyDownListener);
     window.addEventListener("keyup", keyUpListener);
     return () => {
+      // @ts-expect-error
+      delete window.__BIGTEST_SHOW_INSPECTOR__;
       window.removeEventListener("keydown", keyDownListener);
       window.removeEventListener("keyup", keyUpListener);
     };
