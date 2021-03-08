@@ -1,11 +1,9 @@
-import { useStore } from "effector-react";
-import { $selector } from "../actions";
-import type { getInteractors } from "./getInteractors";
+import type { ResolvedInteractor } from "./getInteractors";
 import { HighlightElement } from "./HighlightElement";
 import { Interactor } from "./Interactor";
 
 interface InspectorView {
-  interactors: ReturnType<typeof getInteractors>;
+  interactors: [string, ResolvedInteractor][];
 }
 
 export function InspectorView({ interactors }: InspectorView) {

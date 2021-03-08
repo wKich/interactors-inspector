@@ -1,5 +1,3 @@
-import { createApi, createStore } from "effector";
-import { useStore } from "effector-react";
 import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { $selector, highlight, unhighlight } from "../actions";
 import { ActionComponent } from "./ActionButton";

@@ -1,11 +1,12 @@
-import { createApi, createStore } from "effector";
+import { createApi, createEffect, createStore } from "effector";
 import type { MouseEvent } from "react";
-import { getInteractors } from "./interactors/getInteractors";
+import { getInteractors, ResolvedInteractor } from "./interactors/getInteractors";
 
-export const $interactors = createStore<ReturnType<typeof getInteractors>>([]);
-export const { refresh } = createApi($interactors, {
-  refresh: (_, _event?: MouseEvent<HTMLElement, globalThis.MouseEvent>) => getInteractors(),
-});
+export const refresh = createEffect((_event?: MouseEvent<HTMLElement, globalThis.MouseEvent>) => getInteractors());
+export const $interactors = createStore<[string, ResolvedInteractor][]>([]).on(
+  refresh.doneData,
+  (_, interactors) => interactors
+);
 
 export const $isLoading = createStore(false);
 export const { start, end } = createApi($isLoading, {

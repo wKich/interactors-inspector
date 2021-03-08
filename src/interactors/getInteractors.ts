@@ -8,7 +8,8 @@ import {
   RadioButton as BaseRadioButton,
   Select as BaseSelect,
   TextField as BaseTextField,
-} from "bigtest";
+} from "@bigtest/interactor";
+import type { BaseInteractor } from "@bigtest/interactor/dist/specification";
 import { finder } from "@medv/finder";
 import { close, open } from "../actions";
 
@@ -23,6 +24,10 @@ export interface InteractableElement {
 export interface ResolvedInteractor {
   constructor: InteractorConstructor<any, any, any>;
   elements: InteractableElement[];
+}
+
+function isDefined<T>(value: T | null | undefined): value is T {
+  return value !== null && value !== undefined;
 }
 
 let watchingElements = new Map<Element, { selector: string; openHandler: () => void; closeHandler: () => void }>();
@@ -66,42 +71,54 @@ function wrapAction(action: (...args: any[]) => any, callback: (...args: any[]) 
   }
 }
 
-function resolveInteractor<T extends InteractorConstructor<any, any, any>>(
+async function resolveInteractor<T extends InteractorConstructor<any, any, any>>(
   constructor: T,
-  resolveSelector: (element: Element) => [Element, string]
-): ResolvedInteractor {
-  const interactor = constructor();
-  const { specification } = interactor.options;
-  const { locator, selector, filters, actions } = specification;
-  const elements: Element[] = ((selector
-    ? Array.from(document.querySelectorAll(selector))
-    : []) as Element[]).filter((element) => excludedContainers.every((container) => !container?.contains(element)));
+  resolveSelector: (element: Element) => string
+): Promise<ResolvedInteractor> {
+  const interactors = constructor.all() as BaseInteractor<Element, any>[];
+  const entries = await Promise.all(
+    interactors.map(async (interactor) => {
+      let element = null;
+      await interactor.perform((e) => (element = e));
+      if (element == null) return null;
+      return [interactor, element] as [BaseInteractor<Element, any>, Element];
+    })
+  );
+
+  const elements = entries
+    .filter(isDefined)
+    .filter(([, element]) => excludedContainers.every((container) => !container?.contains(element)))
+    .map(([interactor, element]) => {
+      const { specification } = interactor.options;
+      const { locator, filters, actions } = specification;
+      return {
+        element,
+        selector: resolveSelector(element),
+        locator: locator?.(element),
+        actions: Object.fromEntries(
+          Object.entries(actions).map(([name, action]) => [
+            name,
+            wrapAction(action as (...args: any[]) => any, (...args: any[]) =>
+              new Promise((resolve) => setTimeout(resolve, 0)).then(() => (interactor as any)[name](...args))
+            ),
+          ])
+        ),
+        props: Object.fromEntries(
+          Object.entries(filters).map(([filterKey, filter]) => [
+            filterKey,
+            typeof filter == "function" ? filter(element) : (filter as { apply(...args: any[]): any }).apply(element),
+          ])
+        ),
+      };
+    });
 
   return {
     constructor,
-    elements: elements.map(resolveSelector).map(([element, selector]) => ({
-      element,
-      selector,
-      locator: locator?.(element as any),
-      actions: Object.fromEntries(
-        Object.entries(actions).map(([name, action]) => [
-          name,
-          wrapAction(action as (...args: any[]) => any, (...args: any[]) =>
-            new Promise((resolve) => setTimeout(resolve, 0)).then(() => constructor({ selector })[name](...args))
-          ),
-        ])
-      ),
-      props: Object.fromEntries(
-        Object.entries(filters).map(([filterKey, filter]) => [
-          filterKey,
-          typeof filter == "function" ? filter(element) : (filter as { apply(...args: any[]): any }).apply(element),
-        ])
-      ),
-    })),
+    elements,
   };
 }
 
-export const getInteractors = (): [string, ResolvedInteractor][] => {
+export async function getInteractors(): Promise<[string, ResolvedInteractor][]> {
   const newWatchingElements = new Map<
     Element,
     { selector: string; openHandler: () => void; closeHandler: () => void }
@@ -119,22 +136,22 @@ export const getInteractors = (): [string, ResolvedInteractor][] => {
 
     newWatchingElements.set(element, { selector, openHandler, closeHandler });
 
-    return [element, selector] as [Element, string];
+    return selector;
   };
   excludedContainers = getExcludedContainers();
 
   const interactors = Object.entries({
-    Button: resolveInteractor(Button, resolveSelector),
-    CheckBox: resolveInteractor(CheckBox, resolveSelector),
-    Heading: resolveInteractor(Heading, resolveSelector),
-    Link: resolveInteractor(Link, resolveSelector),
-    MultiSelect: resolveInteractor(MultiSelect, resolveSelector),
-    RadioButton: resolveInteractor(RadioButton, resolveSelector),
-    Select: resolveInteractor(Select, resolveSelector),
-    TextField: resolveInteractor(TextField, resolveSelector),
+    Button: await resolveInteractor(Button, resolveSelector),
+    CheckBox: await resolveInteractor(CheckBox, resolveSelector),
+    Heading: await resolveInteractor(Heading, resolveSelector),
+    Link: await resolveInteractor(Link, resolveSelector),
+    MultiSelect: await resolveInteractor(MultiSelect, resolveSelector),
+    RadioButton: await resolveInteractor(RadioButton, resolveSelector),
+    Select: await resolveInteractor(Select, resolveSelector),
+    TextField: await resolveInteractor(TextField, resolveSelector),
   });
 
   watchingElements = newWatchingElements;
 
   return interactors;
-};
+}

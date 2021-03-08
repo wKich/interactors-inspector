@@ -1,5 +1,5 @@
 import { useStore } from "effector-react";
-import { createInteractor } from "bigtest";
+import { createInteractor } from "@bigtest/interactor";
 import React, { useCallback, useEffect, useState } from "react";
 import { InspectorView } from "./interactors/InspectorView";
 import { ActionsEditor } from "./interactors/ActionsEditior";
