@@ -1,6 +1,6 @@
 /** @type {import("webpack").Configuration } */
 module.exports = {
-  mode: "development",
+  mode: process.env.NODE_ENV ?? 'development',
   entry: "./src/index.tsx",
   output: { path: `${__dirname}/build` },
   module: {

@@ -1,10 +1,11 @@
 {
   "scripts": {
-    "build": "webpack build",
+    "build": "NODE_ENV=production webpack build",
     "watch": "webpack build --watch",
     "test": "echo \"This template does not include a test runner by default.\" && exit 1"
   },
   "devDependencies": {
+    "@types/prismjs": "^1.16.3",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.1",
     "autoprefixer": "^10.2.5",
@@ -20,11 +21,10 @@
   "dependencies": {
     "@bigtest/interactor": "^0.28.2-4eb68418",
     "@medv/finder": "^2.0.0",
-    "ace-builds": "^1.4.12",
     "effector": "^21.8.5",
     "effector-react": "^21.2.1",
+    "prismjs": "^1.23.0",
     "react": "^17.0.1",
-    "react-ace": "^9.3.0",
     "react-dom": "^17.0.1",
     "tailwindcss": "^2.0.3"
   }
